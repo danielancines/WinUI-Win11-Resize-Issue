@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "WinUI.Win11SetParent (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "WinUI.Win11SetParent (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
