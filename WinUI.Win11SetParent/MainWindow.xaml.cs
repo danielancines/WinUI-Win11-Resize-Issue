@@ -27,6 +27,18 @@ namespace WinUI.Win11SetParent
     /// </summary>
     public sealed partial class MainWindow : Window
     {
+        const int WS_OVERLAPPED = 0x00000000;
+        const int WS_CAPTION = 0x00C00000;
+        const int WS_SYSMENU = 0x00080000;
+        const int WS_THICKFRAME = 0x00040000;
+        const int WS_MINIMIZEBOX = 0x00020000;
+        const int WS_MAXIMIZEBOX = 0x00010000;
+
+        int WS_CHILD = 0x40000000;
+        int WS_VISIBLE = 0x10000000;
+        int WS_BORDER = 0x00800000;
+        int WS_OVERLAPPEDWINDOW = WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX;
+
         [DllImport("USER32.dll", ExactSpelling = true, SetLastError = true)]
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         [SupportedOSPlatform("windows5.0")]
@@ -43,7 +55,7 @@ namespace WinUI.Win11SetParent
 
         private void myButton_Click(object sender, RoutedEventArgs e)
         {
-            var newWindow = new Window();
+            var newWindow = new Window() { Content = new Grid() { Background = new SolidColorBrush(Colors.DarkBlue)} };
             newWindow.Activate();
 
             var childWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(newWindow);
@@ -53,7 +65,11 @@ namespace WinUI.Win11SetParent
             var parentHandle = new HWND(parentWindowHandle);
 
             SetParent(childHandle, parentHandle);
-            SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, -20);
+            SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, WS_OVERLAPPEDWINDOW);
+            //SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER);
+
+
+            
         }
     }
 
