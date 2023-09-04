@@ -9,6 +9,7 @@
     mc:Ignorable="d">
 
     <StackPanel Orientation="Horizontal" Background="DarkGray" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+        <TextBlock x:Name="SizeTextBlock"/>
         <Button x:Name="myButton" Click="myButton_Click">Click Me</Button>
     </StackPanel>
 </Window>

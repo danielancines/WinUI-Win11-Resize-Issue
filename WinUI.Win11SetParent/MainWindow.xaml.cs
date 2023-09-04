@@ -48,6 +48,18 @@ namespace WinUI.Win11SetParent
         [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
         [SupportedOSPlatform("windows5.0")]
         internal static extern int SetWindowLong(HWND hWnd, WINDOW_LONG_PTR_INDEX nIndex, int dwNewLong);
+
+        [DllImport("USER32.dll", ExactSpelling = true, EntryPoint = "GetWindowLongW", SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        [SupportedOSPlatform("windows5.0")]
+        internal static extern int GetWindowLong(HWND hWnd, WINDOW_LONG_PTR_INDEX nIndex);
+
+        [DllImport("USER32.dll", ExactSpelling = true, SetLastError = true)]
+        [DefaultDllImportSearchPaths(DllImportSearchPath.System32)]
+        [SupportedOSPlatform("windows5.0")]
+        internal static extern bool SetWindowPos(HWND hWnd, HWND hWndInsertAfter, int X, int Y, int cx, int cy, SET_WINDOW_POS_FLAGS uFlags);
+
+
         public MainWindow()
         {
             this.InitializeComponent();
@@ -55,7 +67,8 @@ namespace WinUI.Win11SetParent
 
         private void myButton_Click(object sender, RoutedEventArgs e)
         {
-            var newWindow = new Window() { Content = new Grid() { Background = new SolidColorBrush(Colors.DarkBlue)} };
+            var newWindow = new Window() { Content = new Grid() { Background = new SolidColorBrush(Colors.DarkBlue) } };
+            newWindow.SizeChanged += NewWindow_SizeChanged;
             newWindow.Activate();
 
             var childWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(newWindow);
@@ -64,12 +77,23 @@ namespace WinUI.Win11SetParent
             var childHandle = new HWND(childWindowHandle);
             var parentHandle = new HWND(parentWindowHandle);
 
-            SetParent(childHandle, parentHandle);
+            int currentStyle = GetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_STYLE);
+            IntPtr newStyle = IntPtr.Zero;
+
+            newStyle = (IntPtr)((int)currentStyle);
+            newStyle = (IntPtr)((int)newStyle | WS_THICKFRAME);
+
+            //SetParent(childHandle, parentHandle);
+
+            SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_STYLE, (int)newStyle);
             SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, WS_OVERLAPPEDWINDOW);
-            //SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER);
 
+            //SetWindowPos(childHandle, new HWND(), 0, 0, 0, 0, SET_WINDOW_POS_FLAGS.SWP_NOSIZE | SET_WINDOW_POS_FLAGS.SWP_ASYNCWINDOWPOS);
+        }
 
-            
+        private void NewWindow_SizeChanged(object sender, WindowSizeChangedEventArgs args)
+        {
+            this.SizeTextBlock.Text = args.Size.ToString();
         }
     }
 
@@ -112,5 +136,24 @@ namespace WinUI.Win11SetParent
         public override bool Equals(object obj) => obj is HWND other && this.Equals(other);
 
         public override int GetHashCode() => this.Value.GetHashCode();
+    }
+
+    internal enum SET_WINDOW_POS_FLAGS : uint
+    {
+        SWP_ASYNCWINDOWPOS = 0x00004000,
+        SWP_DEFERERASE = 0x00002000,
+        SWP_DRAWFRAME = 0x00000020,
+        SWP_FRAMECHANGED = 0x00000020,
+        SWP_HIDEWINDOW = 0x00000080,
+        SWP_NOACTIVATE = 0x00000010,
+        SWP_NOCOPYBITS = 0x00000100,
+        SWP_NOMOVE = 0x00000002,
+        SWP_NOOWNERZORDER = 0x00000200,
+        SWP_NOREDRAW = 0x00000008,
+        SWP_NOREPOSITION = 0x00000200,
+        SWP_NOSENDCHANGING = 0x00000400,
+        SWP_NOSIZE = 0x00000001,
+        SWP_NOZORDER = 0x00000004,
+        SWP_SHOWWINDOW = 0x00000040,
     }
 }
