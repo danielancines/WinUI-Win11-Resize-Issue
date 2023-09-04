@@ -56,6 +56,9 @@ namespace WinUI.Win11SetParent
         private void myButton_Click(object sender, RoutedEventArgs e)
         {
             var newWindow = new Window() { Content = new Grid() { Background = new SolidColorBrush(Colors.DarkBlue)} };
+            newWindow.AppWindow.Resize(new Windows.Graphics.SizeInt32(5000,5000));
+
+            var appWindow = newWindow.AppWindow;
             newWindow.Activate();
 
             var childWindowHandle = WinRT.Interop.WindowNative.GetWindowHandle(newWindow);
@@ -68,8 +71,8 @@ namespace WinUI.Win11SetParent
             SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_EXSTYLE, WS_OVERLAPPEDWINDOW);
             //SetWindowLong(childHandle, WINDOW_LONG_PTR_INDEX.GWL_STYLE, WS_CHILD | WS_VISIBLE | WS_BORDER);
 
+            appWindow.Resize(new Windows.Graphics.SizeInt32(200, 200));
 
-            
         }
     }
 
